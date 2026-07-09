@@ -18,3 +18,4 @@ $routes->post('/auth/simpanRegister', 'Auth::simpanRegister');
 $routes->get('/login', 'Auth::login');
 $routes->post('/auth/prosesLogin', 'Auth::prosesLogin');
 $routes->get('/logout', 'Auth::logout');
+$routes->post('/shop/simpan-kategori', 'Shop::simpanKategori');

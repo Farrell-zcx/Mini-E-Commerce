@@ -159,7 +159,7 @@ public function hapusKeranjang($id)
     return redirect()->to('/keranjang')->with('pesan', 'Barang berhasil dikeluarkan dari keranjang.');
 }
 
-// Fungsi Utama Checkout (CO): Potong Stok Postgres Berdasarkan Isi Keranjang
+// Potong Stok Postgres Berdasarkan Isi Keranjang
 public function checkout()
 {
     $keranjang = session()->get('keranjang') ?? [];
@@ -187,5 +187,32 @@ public function checkout()
     session()->remove('keranjang');
 
     return redirect()->to('/')->with('pesan', '🔥 CHECKOUT SUKSES! Stok Postgres berhasil dipotong. Selamat berbelanja kembali, Bree!');
+    }
+
+    public function simpanKategori()
+{
+    // Memanggil KategoriModel (pastikan nama model lu sesuai, biasanya KategoriModel)
+    $kategoriModel = new \App\Models\KategoriModel();
+
+    // Mengambil input nama kategori baru dari form modal
+    $namaKategori = $this->request->getPost('nama_kategori');
+
+    // Validasi singkat biar gak kosong
+    if (empty($namaKategori)) {
+        return redirect()->back()->with('error', 'Nama kategori gak boleh kosong, Bree!');
+    }
+
+    // Cek apakah kategori tersebut sudah pernah ada di database
+    $cekKategori = $kategoriModel->where('nama_kategori', $namaKategori)->first();
+    if ($cekKategori) {
+        return redirect()->back()->with('error', 'Kategori "' . $namaKategori . '" udah ada, Bree!');
+    }
+
+    // Simpan ke database MySQL
+    $kategoriModel->save([
+        'nama_kategori' => $namaKategori
+    ]);
+
+    return redirect()->back()->with('pesan', 'Kategori "' . $namaKategori . '" berhasil ditambahkan! 😎');
     }
 }

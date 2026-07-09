@@ -1,69 +1,130 @@
-# CodeIgniter 4 Application Starter
+# 🛒 BreeCommerce - Mini E-Commerce Pro
 
-## What is CodeIgniter?
+BreeCommerce adalah aplikasi e-commerce mini berbasis web yang dibangun menggunakan framework **CodeIgniter 4** dan database **MySQL**. Aplikasi ini dirancang agar ringan, responsif, dan mudah dipahami, dengan tampilan antarmuka yang bersih memanfaatkan **Bootstrap 5** dan **Bootstrap Icons**.
 
-CodeIgniter is a PHP full-stack web framework that is light, fast, flexible and secure.
-More information can be found at the [official site](https://codeigniter.com).
+Aplikasi ini mencakup alur penuh transaksi e-commerce dasar mulai dari autentikasi pengguna, manajemen katalog produk, penambahan kategori dinamis via modal pop-up, sistem keranjang belanja berbasis session, hingga proses checkout yang secara otomatis memotong stok produk di database.
 
-This repository holds a composer-installable app starter.
-It has been built from the
-[development repository](https://github.com/codeigniter4/CodeIgniter4).
+---
 
-More information about the plans for version 4 can be found in [CodeIgniter 4](https://forum.codeigniter.com/forumdisplay.php?fid=28) on the forums.
+## Fitur Utama
 
-You can read the [user guide](https://codeigniter.com/user_guide/)
-corresponding to the latest version of the framework.
+Aplikasi ini dilengkapi dengan fitur-fitur penting berikut:
 
-## Installation & updates
+1. **Autentikasi Pengguna (Auth)**:
+   - **Registrasi**: Pendaftaran akun baru dengan password terenkripsi aman menggunakan `password_hash()`.
+   - **Login & Session**: Validasi akun menggunakan `password_verify()` dan penyimpanan detail sesi (`isLoggedIn`, `user_id`, `nama_lengkap`, `role`).
+   - **Logout**: Pembersihan data session secara aman.
 
-`composer create-project codeigniter4/appstarter` then `composer update` whenever
-there is a new release of the framework.
+2. **Katalog Produk (Shop Catalog)**:
+   - Menampilkan daftar produk dengan nama, kategori, deskripsi, gambar produk, harga yang terformat dalam rupiah (`Rp`), dan jumlah stok saat ini.
+   - Pilihan operasi tambah produk baru, edit produk, serta hapus produk bagi pengelola.
 
-When updating, check the release notes to see if there are any changes you might need to apply
-to your `app` folder. The affected files can be copied or merged from
-`vendor/codeigniter4/framework/app`.
+3. **Manajemen Produk (CRUD)**:
+   - **Tambah Produk**: Formulir lengkap dengan unggahan file gambar (JPG, JPEG, PNG) acak unik.
+   - **Tambah Kategori Instan**: Tombol modal `➕ Kategori` yang menempel di sebelah dropdown kategori untuk menambah kategori baru secara dinamis tanpa berpindah halaman.
+   - **Edit & Update**: Mengubah spesifikasi produk, harga, stok, dan mengganti foto produk (foto lama akan dihapus otomatis dari server agar hemat penyimpanan).
+   - **Hapus Produk**: Menghapus produk dari database.
 
-## Setup
+4. **Sistem Keranjang Belanja (Shopping Cart)**:
+   - Ditangani di sisi server melalui Session.
+   - Proteksi stok: Pengguna tidak dapat menambahkan item ke keranjang melebihi batas stok yang tersedia di database.
+   - Halaman detail keranjang yang menampilkan rincian harga, jumlah item, subtotal per item, dan total belanjaan.
 
-Copy `env` to `.env` and tailor for your app, specifically the baseURL
-and any database settings.
+5. **Proses Checkout (CO)**:
+   - Pengurangan stok produk secara otomatis di database MySQL setelah berhasil checkout.
+   - Pembersihan otomatis isi keranjang belanja pada session setelah transaksi sukses.
 
-## Important Change with index.php
+---
 
-`index.php` is no longer in the root of the project! It has been moved inside the *public* folder,
-for better security and separation of components.
+## Tech Stack & Kebutuhan Sistem
 
-This means that you should configure your web server to "point" to your project's *public* folder, and
-not to the project root. A better practice would be to configure a virtual host to point there. A poor practice would be to point your web server to the project root and expect to enter *public/...*, as the rest of your logic and the
-framework are exposed.
+- **Server Language**: PHP (Direkomendasikan PHP 8.1 / 8.2 / 8.3)
+- **Framework**: CodeIgniter 4.x
+- **Database**: MySQL / MariaDB (melalui driver `MySQLi`)
+- **Frontend & Styling**: Bootstrap 5.3.0 & Bootstrap Icons 1.11.3
+- **Development Tooling**: Laragon / XAMPP (Local Web Server)
 
-**Please** read the user guide for a better explanation of how CI4 works!
+---
 
-## Repository Management
+## Struktur Database & Migrasi
 
-We use GitHub issues, in our main repository, to track **BUGS** and to track approved **DEVELOPMENT** work packages.
-We use our [forum](http://forum.codeigniter.com) to provide SUPPORT and to discuss
-FEATURE REQUESTS.
+Project ini menggunakan fitur **CodeIgniter Migrations** dan **Seeds** untuk menyiapkan struktur tabel serta data awal.
 
-This repository is a "distribution" one, built by our release preparation script.
-Problems with it can be raised on our forum, or as issues in the main repository.
+### 1. Daftar Tabel (Migrations)
+*   **`users`** (`CreateUsersTable`): Menyimpan data akun pengguna (nama, email, password terhash, role, timestamps).
+*   **`kategori`** (`CreateKategoriTable`): Menyimpan nama-nama kategori produk (timestamps).
+*   **`produk`** (`CreateProdukTable`): Menyimpan data produk, relasi ke kategori via `kategori_id`, deskripsi, harga, stok, nama file foto, dan timestamps.
 
-## Server Requirements
+### 2. Data Awal (Seeds)
+Terdapat file `ShopSeeder` yang otomatis mengisi 3 kategori awal serta 3 produk demo berkualitas tinggi untuk kebutuhan uji coba pertama kali.
 
-PHP version 8.2 or higher is required, with the following extensions installed:
+---
 
-- [intl](http://php.net/manual/en/intl.requirements.php)
-- [mbstring](http://php.net/manual/en/mbstring.installation.php)
+## Panduan Instalasi & Pengaturan
 
-> [!WARNING]
-> - The end of life date for PHP 7.4 was November 28, 2022.
-> - The end of life date for PHP 8.0 was November 26, 2023.
-> - The end of life date for PHP 8.1 was December 31, 2025.
-> - If you are still using below PHP 8.2, you should upgrade immediately.
-> - The end of life date for PHP 8.2 will be December 31, 2026.
+Ikuti langkah-langkah di bawah ini untuk menjalankan project ini di komputer lokal Anda:
 
-Additionally, make sure that the following extensions are enabled in your PHP:
+### Langkah 1: Kloning & Pindahkan Project
+Letakkan folder project ini di direktori root server lokal Anda (misal `C:/laragon/www/mini-ecommerce` untuk Laragon, atau `C:/xampp/htdocs/mini-ecommerce` untuk XAMPP).
 
-- json (enabled by default - don't turn it off)
-- [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
-- [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
+### Langkah 2: Konfigurasi File `.env`
+1. Salin atau ubah nama file `env` bawaan CodeIgniter menjadi **`.env`** di root folder project.
+2. Atur URL aplikasi dan detail koneksi database Anda:
+   ```ini
+   CI_ENVIRONMENT = development
+
+   app.baseURL = 'http://localhost:8080/' # Sesuaikan dengan port server Anda
+
+   database.default.DBDriver = MySQLi
+   database.default.hostname = localhost
+   database.default.database = mini_ecommerce_mysql
+   database.default.username = root
+   database.default.password = 
+   database.default.port = 3306
+   ```
+
+### Langkah 3: Membuat Database & Jalankan Migrasi
+1. Buat database baru di MySQL dengan nama **`mini_ecommerce_mysql`** (atau sesuaikan dengan nama di `.env` Anda).
+2. Jalankan perintah migrasi di terminal root project untuk membuat tabel-tabel secara otomatis:
+   ```bash
+   php spark migrate
+   ```
+3. Isi data kategori dan produk demo dengan menjalankan seeder:
+   ```bash
+   php spark db:seed ShopSeeder
+   ```
+
+### Langkah 4: Jalankan Server Lokal
+Anda bisa langsung mengakses project melalui domain Laragon (contoh: `http://mini-ecommerce.test/`) atau menggunakan perintah bawaan CodeIgniter:
+```bash
+php spark serve
+```
+Buka peramban (browser) dan akses alamat `http://localhost:8080`.
+
+---
+
+## Struktur Folder Utama
+
+```text
+mini-ecommerce/
+├── app/
+│   ├── Config/          # Berkas konfigurasi aplikasi (Routes, Database, dll)
+│   ├── Controllers/     # Logika aplikasi (Auth.php, Shop.php, dll)
+│   ├── Database/        # Migrasi tabel database dan Seeder data awal
+│   ├── Models/          # Berkas Model interaksi database (UserModel, ProdukModel, dll)
+│   └── Views/           # Halaman UI (shop_view, keranjang_view, login_view, dll)
+├── public/
+│   ├── uploads/         # Folder tempat penyimpanan gambar produk yang diunggah
+│   ├── index.php        # Titik masuk utama aplikasi (Entry point)
+│   └── favicon.ico
+├── _ide_helper.php      # File bantuan agar IDE/VS Code tidak menampilkan error merah (Intelephense)
+├── .env                 # Konfigurasi environment lokal (Database & App URL)
+└── README.md            # Dokumentasi project
+```
+
+---
+
+## Informasi Tambahan 
+
+*   **Pencegahan Error Merah di VS Code**: Project ini menyertakan file **`_ide_helper.php`** di root direktori. File ini secara khusus bertindak sebagai deklarator bagi ekstensi seperti *PHP Intelephense* agar mengenali fungsi-fungsi helper CodeIgniter (`csrf_field()`, `esc()`, `session()`, `base_url()`) tanpa memicu tanda error merah di editor Anda.
+*   **Folder Upload Gambar**: Semua file gambar produk yang diunggah akan otomatis masuk ke folder `public/uploads/`. Pastikan folder ini memiliki hak akses menulis (*write permission*) pada lingkungan produksi.
