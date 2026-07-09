@@ -77,7 +77,7 @@
                             <span class="fs-4 fw-bold text-warning">Rp <?= number_format($grandTotal, 0, ',', '.'); ?></span>
                         </div>
                         
-                        <form action="/shop/checkout" method="post">
+                        <form action="<?= base_url('shop/checkout'); ?>" method="post">
                             <?= csrf_field(); ?>
                             <button type="submit" class="btn btn-success w-100 fw-bold fs-5 rounded-pill py-2 shadow">
                                 🚀 CHECKOUT SEKARANG (CO)
