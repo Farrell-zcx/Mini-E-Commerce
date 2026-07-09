@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var array $daftar_kategori Daftar semua kategori
+ */
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -16,7 +21,8 @@
                     <div class="card-body p-4">
                         
                         <form action="/shop/simpan" method="post" enctype="multipart/form-data">
-                            <?= csrf_field(); ?> <div class="mb-3">
+                            <?= csrf_field(); ?>
+                            <div class="mb-3">
                                 <label class="form-label fw-semibold">Pilih Kategori</label>
                                 <select name="kategori_id" class="form-select" required>
                                     <option value="">-- Pilih Kategori Produk --</option>

@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var array $keranjang Data isi keranjang belanja dari session
+ */
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>

@@ -1,3 +1,9 @@
+<?php
+/**
+ * @var array $produk Data produk yang sedang diedit
+ * @var array $daftar_kategori Daftar semua kategori
+ */
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
