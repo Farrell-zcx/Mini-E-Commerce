@@ -19,7 +19,7 @@
         <h3 class="fw-bold mb-4"><i class="bi bi-cart3"></i> Detail Keranjang Belanja Lu</h3>
 
         <?php if (session()->getFlashdata('error')) : ?>
-            <div class="alert alert-danger fw-bold"><?= session()->getFlashdata('error'); ?></div>
+            <div class="alert alert-danger fw-bold shadow-sm">❌ <?= session()->getFlashdata('error'); ?></div>
         <?php endif; ?>
 
         <?php if (empty($keranjang)) : ?>
@@ -30,6 +30,7 @@
             </div>
         <?php else : ?>
             <div class="row">
+                
                 <div class="col-md-8 mb-4">
                     <div class="card p-3 border-0 shadow-sm">
                         <table class="table align-middle">
@@ -78,13 +79,15 @@
                         
                         <form action="/shop/checkout" method="post">
                             <?= csrf_field(); ?>
-                            <button type="submit" class="btn btn-success w-100 fw-bold fs-5 rounded-pill py-2 shadow" onclick="return confirm('Sudah fix mau Checkout belanjaan ini, Bree?')">
+                            <button type="submit" class="btn btn-success w-100 fw-bold fs-5 rounded-pill py-2 shadow">
                                 🚀 CHECKOUT SEKARANG (CO)
                             </button>
                         </form>
+                        
                         <a href="/" class="btn btn-outline-light w-100 fw-bold rounded-pill mt-2">Lanjut Belanja</a>
                     </div>
                 </div>
+
             </div>
         <?php endif; ?>
     </div>
