@@ -28,8 +28,19 @@ class KategoriModel extends Model
     protected $deletedField  = 'deleted_at';
 
     // Validation
-    protected $validationRules      = [];
-    protected $validationMessages   = [];
+    protected $validationRules = [
+        'nama_kategori' => 'required|min_length[2]|max_length[100]|is_unique[kategori.nama_kategori,id,{id}]',
+    ];
+
+    protected $validationMessages = [
+        'nama_kategori' => [
+            'required'   => 'Nama kategori wajib diisi.',
+            'min_length' => 'Nama kategori minimal 2 karakter.',
+            'max_length' => 'Nama kategori maksimal 100 karakter.',
+            'is_unique'  => 'Kategori ini sudah ada di database.',
+        ],
+    ];
+
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
 

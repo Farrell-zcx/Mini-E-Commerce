@@ -2,93 +2,102 @@
 
 namespace App\Controllers;
 
-use App\Controllers\BaseController;
 use App\Models\UserModel;
+use CodeIgniter\HTTP\RedirectResponse;
 
+/**
+ * Auth — Menangani register, login, dan logout user.
+ */
 class Auth extends BaseController
 {
-    // Menampilkan Halaman Form Register
-    public function register()
+    protected UserModel $userModel;
+
+    public function __construct()
+    {
+        $this->userModel = new UserModel();
+    }
+
+    /**
+     * Menampilkan halaman form register.
+     */
+    public function register(): string
     {
         return view('register_view');
     }
 
-    // Memproses Data Pendaftaran Akun
-    public function simpanRegister()
+    /**
+     * Memproses data pendaftaran akun baru.
+     */
+    public function simpanRegister(): RedirectResponse
     {
-        $userModel = new UserModel();
+        // Validasi input
+        $rules = [
+            'nama_lengkap' => 'required|min_length[3]|max_length[100]',
+            'email'        => 'required|valid_email|is_unique[users.email]',
+            'password'     => 'required|min_length[6]',
+        ];
 
-        // Ambil data dari inputan form
-        $nama     = $this->request->getPost('nama_lengkap');
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        $passwordHash = password_hash(
+            $this->request->getPost('password'),
+            PASSWORD_DEFAULT
+        );
+
+        $this->userModel->insert([
+            'nama_lengkap' => $this->request->getPost('nama_lengkap'),
+            'email'        => $this->request->getPost('email'),
+            'password'     => $passwordHash,
+            'role'         => 'customer',
+        ]);
+
+        return redirect()->to('/login')->with('pesan', 'Akun berhasil dibuat! Silakan login.');
+    }
+
+    /**
+     * Menampilkan halaman form login.
+     */
+    public function login(): string
+    {
+        return view('login_view');
+    }
+
+    /**
+     * Memproses verifikasi login dan pembuatan session.
+     */
+    public function prosesLogin(): RedirectResponse
+    {
         $email    = $this->request->getPost('email');
         $password = $this->request->getPost('password');
 
-        // Cek apakah email sudah pernah terdaftar (Validasi Manual Simpel)
-        $userLama = $userModel->where('email', $email)->first();
-        if ($userLama) {
-            return redirect()->back()->with('error', 'Waduh, email ini sudah terdaftar, Bree! Pakai email lain.');
+        $user = $this->userModel->where('email', $email)->first();
+
+        if (!$user) {
+            return redirect()->back()->with('error', 'Email belum terdaftar di sistem.');
         }
 
-        // Enkripsi password polosan menjadi Hash Aman
-        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+        if (!password_verify($password, $user['password'])) {
+            return redirect()->back()->with('error', 'Password yang Anda masukkan salah.');
+        }
 
-        // Tembak data ke database MySQL
-        $userModel->save([
-            'nama_lengkap' => $nama,
-            'email'        => $email,
-            'password'     => $passwordHash, // Yang disimpan adalah versi kode acak
-            'role'         => 'customer'     // Otomatis terdaftar sebagai pembeli
+        session()->set([
+            'isLoggedIn'   => true,
+            'user_id'      => $user['id'],
+            'nama_lengkap' => $user['nama_lengkap'],
+            'role'         => $user['role'],
         ]);
 
-        return redirect()->to('/login')->with('pesan', 'Akun lu sukses dibuat, Bree! Silakan login.');
+        return redirect()->to('/')->with('pesan', 'Halo ' . $user['nama_lengkap'] . ', selamat datang kembali!');
     }
 
-    // Menampilkan Halaman Form Login
-public function login()
-{
-    return view('login_view');
-}
-
-// Memproses Logika Verifikasi Akun & Pembuatan Session
-public function prosesLogin()
-{
-    $userModel = new \App\Models\UserModel();
-
-    $email    = $this->request->getPost('email');
-    $password = $this->request->getPost('password');
-
-    // Cari data user di MySQL berdasarkan email
-    $user = $userModel->where('email', $email)->first();
-
-    if ($user) {
-        // Verifikasi password ketikan user dengan password terenkripsi di DB
-        if (password_verify($password, $user['password'])) {
-            
-            // Jika password COCOK, buat tanda pengenal (Session) di browser
-            session()->set([
-                'isLoggedIn'   => true,
-                'user_id'      => $user['id'],
-                'nama_lengkap' => $user['nama_lengkap'],
-                'role'         => $user['role']
-            ]);
-
-            // Tendang ke halaman utama dengan pesan sukses
-            return redirect()->to('/')->with('pesan', 'Halo ' . $user['nama_lengkap'] . ', selamat datang kembali, Bree!');
-        } else {
-            // Jika password salah
-            return redirect()->back()->with('error', 'Waduh, password lu salah, Bree!');
-        }
-    } else {
-        // Jika email tidak ditemukan
-        return redirect()->back()->with('error', 'Email belum terdaftar di sistem, Bree!');
+    /**
+     * Memproses logout dan menghancurkan session.
+     */
+    public function logout(): RedirectResponse
+    {
+        session()->destroy();
+        return redirect()->to('/login')->with('pesan', 'Berhasil keluar. Sampai jumpa lagi!');
     }
-}
-
-// Memproses Fungsi Logout 
-public function logout()
-{
-    session()->destroy();
-    return redirect()->to('/login')->with('pesan', 'Sukses keluar akun. Sampai jumpa lagi, Bree!');
-    }
-
 }

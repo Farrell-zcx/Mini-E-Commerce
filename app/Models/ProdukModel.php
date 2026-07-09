@@ -28,8 +28,35 @@ class ProdukModel extends Model
     protected $deletedField  = 'deleted_at';
 
     // Validation
-    protected $validationRules      = [];
-    protected $validationMessages   = [];
+    protected $validationRules = [
+        'kategori_id' => 'required|integer',
+        'nama_produk' => 'required|min_length[3]|max_length[255]',
+        'harga'       => 'required|numeric|greater_than[0]',
+        'stok'        => 'required|integer|greater_than_equal_to[0]',
+    ];
+
+    protected $validationMessages = [
+        'kategori_id' => [
+            'required' => 'Kategori produk wajib dipilih.',
+            'integer'  => 'Kategori produk tidak valid.',
+        ],
+        'nama_produk' => [
+            'required'   => 'Nama produk wajib diisi.',
+            'min_length' => 'Nama produk minimal 3 karakter.',
+            'max_length' => 'Nama produk maksimal 255 karakter.',
+        ],
+        'harga' => [
+            'required'     => 'Harga produk wajib diisi.',
+            'numeric'      => 'Harga harus berupa angka.',
+            'greater_than' => 'Harga harus lebih dari 0.',
+        ],
+        'stok' => [
+            'required'               => 'Jumlah stok wajib diisi.',
+            'integer'                => 'Stok harus berupa bilangan bulat.',
+            'greater_than_equal_to'  => 'Stok tidak boleh negatif.',
+        ],
+    ];
+
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
 
@@ -44,12 +71,15 @@ class ProdukModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    public function getProdukWithKategori()
-{
-    // Mengambil semua data produk sekalian nge-join tabel kategori berdasarkan id yang sama
-    return $this->select('produk.*, kategori.nama_kategori')
-                ->join('kategori', 'kategori.id = produk.kategori_id')
-                ->findAll();
-}
-
+    /**
+     * Mengambil semua produk beserta nama kategorinya via JOIN.
+     *
+     * @return array
+     */
+    public function getProdukWithKategori(): array
+    {
+        return $this->select('produk.*, kategori.nama_kategori')
+                    ->join('kategori', 'kategori.id = produk.kategori_id')
+                    ->findAll();
+    }
 }

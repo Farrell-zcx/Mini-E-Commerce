@@ -3,19 +3,29 @@
 use CodeIgniter\Router\RouteCollection;
 
 /** @var RouteCollection $routes */
-$routes->get('/', 'Shop::index');
-$routes->get('/tambah-produk', 'Shop::tambah');
-$routes->post('/shop/simpan', 'Shop::simpan');
-$routes->get('/edit-produk/(:num)', 'Shop::edit/$1');
-$routes->post('/shop/update/(:num)', 'Shop::update/$1');
-$routes->get('/shop/delete/(:num)', 'Shop::delete/$1');
-$routes->get('/shop/add-to-cart/(:num)', 'Shop::addToCart/$1');
-$routes->get('/keranjang', 'Shop::keranjang');
-$routes->get('/shop/hapus-keranjang/(:num)', 'Shop::hapusKeranjang/$1');
-$routes->post('/shop/checkout', 'Shop::checkout');
+
+// --- Halaman Publik ---
+$routes->get('/', 'ProdukController::index');
+
+// --- Auth Routes ---
 $routes->get('/register', 'Auth::register');
 $routes->post('/auth/simpanRegister', 'Auth::simpanRegister');
 $routes->get('/login', 'Auth::login');
 $routes->post('/auth/prosesLogin', 'Auth::prosesLogin');
 $routes->get('/logout', 'Auth::logout');
-$routes->post('/shop/simpan-kategori', 'Shop::simpanKategori');
+
+// --- Produk CRUD (Dilindungi Auth Filter) ---
+$routes->get('/tambah-produk', 'ProdukController::tambah', ['filter' => 'auth']);
+$routes->post('/produk/simpan', 'ProdukController::simpan', ['filter' => 'auth']);
+$routes->get('/edit-produk/(:num)', 'ProdukController::edit/$1', ['filter' => 'auth']);
+$routes->post('/produk/update/(:num)', 'ProdukController::update/$1', ['filter' => 'auth']);
+$routes->post('/produk/delete/(:num)', 'ProdukController::delete/$1', ['filter' => 'auth']);
+
+// --- Kategori (Dilindungi Auth Filter) ---
+$routes->post('/kategori/simpan', 'KategoriController::simpan', ['filter' => 'auth']);
+
+// --- Keranjang & Checkout ---
+$routes->get('/keranjang', 'KeranjangController::index');
+$routes->post('/keranjang/add/(:num)', 'KeranjangController::addToCart/$1');
+$routes->post('/keranjang/hapus/(:num)', 'KeranjangController::hapus/$1');
+$routes->post('/keranjang/checkout', 'KeranjangController::checkout');

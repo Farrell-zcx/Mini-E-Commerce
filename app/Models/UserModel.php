@@ -28,8 +28,29 @@ class UserModel extends Model
     protected $deletedField  = 'deleted_at';
 
     // Validation
-    protected $validationRules      = [];
-    protected $validationMessages   = [];
+    protected $validationRules = [
+        'nama_lengkap' => 'required|min_length[3]|max_length[100]',
+        'email'        => 'required|valid_email|max_length[100]|is_unique[users.email,id,{id}]',
+        'password'     => 'required|min_length[6]',
+    ];
+
+    protected $validationMessages = [
+        'nama_lengkap' => [
+            'required'   => 'Nama lengkap wajib diisi.',
+            'min_length' => 'Nama lengkap minimal 3 karakter.',
+            'max_length' => 'Nama lengkap maksimal 100 karakter.',
+        ],
+        'email' => [
+            'required'    => 'Email wajib diisi.',
+            'valid_email' => 'Format email tidak valid.',
+            'is_unique'   => 'Email ini sudah terdaftar.',
+        ],
+        'password' => [
+            'required'   => 'Password wajib diisi.',
+            'min_length' => 'Password minimal 6 karakter.',
+        ],
+    ];
+
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
 
