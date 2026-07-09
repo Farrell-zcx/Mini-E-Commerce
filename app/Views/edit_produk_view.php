@@ -15,7 +15,7 @@
                     <div class="card-header bg-dark text-white fw-bold">📝 Edit Produk: <?= esc($produk['nama_produk']); ?></div>
                     <div class="card-body p-4">
                         
-                        <form action="/shop/update/<?= $produk['id']; ?>" method="post" enctype="multipart/form-data">
+                        <form action="<?= base_url('shop/update/' . $produk['id']); ?>" method="post" enctype="multipart/form-data">
                             <?= csrf_field(); ?>
 
                             <div class="mb-3">
@@ -52,9 +52,15 @@
 
                             <div class="mb-3">
                                 <label class="form-label fw-semibold">Ganti Foto Produk</label>
+
+                                <?php if ($produk['foto'] && $produk['foto'] !== 'default.png') : ?>
+                                    <div class="mb-2">
+                                        <img src="<?= base_url('uploads/' . esc($produk['foto'])); ?>" alt="Foto saat ini" class="img-thumbnail" style="max-height: 120px; object-fit: cover;">
+                                    </div>
+                                <?php endif; ?>
+
                                 <input type="file" name="foto" class="form-control" accept="image/*">
                                 <div class="form-text text-muted mb-2">Biarkan kosong jika tidak ingin mengubah foto produk.</div>
-
                                 <span class="badge bg-secondary text-white">File saat ini: <?= esc($produk['foto']); ?></span>
                             </div>
 
