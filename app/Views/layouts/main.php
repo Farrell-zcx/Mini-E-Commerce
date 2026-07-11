@@ -1,96 +1,106 @@
-<?php
+<?php 
 /**
- * Layout utama — Template induk yang digunakan semua halaman.
- *
- * @var string $pageTitle Judul halaman (opsional)
+ * @var CodeIgniter\View\View $this
  */
+// KODE SAKTI: Menghitung total seluruh kuantitas barang di session keranjang secara real-time
+$totalCartItems = 0;
+if (session()->has('keranjang') && is_array(session()->get('keranjang'))) {
+    foreach (session()->get('keranjang') as $item) {
+        $totalCartItems += $item['jumlah'] ?? 1;
+    }
+}
 ?>
 <!DOCTYPE html>
-<html lang="id">
-
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $pageTitle ?? 'Mini E-Commerce Pro'; ?></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <title>Bree-Commerce</title>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=block" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        try {
+            tailwind.config = {
+                darkMode: "class",
+                theme: {
+                    extend: {
+                        colors: {
+                            "primary": "#ccff80",
+                            "primary-container": "#a3e635",
+                            "background": "#1a2232",
+                            "surface": "#242e42"
+                        }
+                    }
+                }
+            }
+        } catch (_e) {}
+    </script>
 </head>
+<body class="bg-[#1F2937] text-[#F3F4F6] antialiased selection:bg-[#A3E635] selection:text-gray-900 flex flex-col min-h-screen">
 
-<body class="bg-light">
+    <header class="bg-[#1A2232] border-b border-white/5 shadow-md sticky top-0 z-50">
+        <div class="flex justify-between items-center h-16 px-4 md:px-8 w-full max-w-[1440px] mx-auto">
+            
+            <div class="flex items-center gap-6">
+                <a href="<?= base_url('/'); ?>" class="text-lg font-bold text-[#F3F4F6] flex items-center gap-2 tracking-wide font-serif">
+                    <span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">storefront</span>
+                    BREE-COMMERCE
+                </a>
+            </div>
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-5 shadow-sm">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="/">🛒 BREE-COMMERCE</a>
+            <div class="flex items-center gap-3">
+                <?php if (session()->get('isLoggedIn')) : ?>
+                    <a href="<?= base_url('produk/tambah'); ?>" class="bg-[#A3E635] text-gray-950 px-4 py-2 rounded-lg hover:bg-[#84cc16] transition-colors text-sm font-semibold shadow-sm">
+                        + Tambah Produk
+                    </a>
+                <?php endif; ?>
 
-            <div class="d-flex align-items-center gap-3">
-                <?php
-                $sessionKeranjang = session()->get('keranjang') ?? [];
-                $totalItem = array_sum(array_column($sessionKeranjang, 'jumlah'));
-                ?>
-                <a href="/keranjang" class="btn btn-outline-light position-relative btn-sm px-3 rounded-pill">
-                    <i class="bi bi-cart3 fs-6"></i> Keranjang
-                    <?php if ($totalItem > 0): ?>
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                            <?= $totalItem; ?>
+                <a href="<?= base_url('keranjang'); ?>" class="flex items-center gap-2 text-sm text-gray-300 border border-white/10 px-4 py-2 rounded-lg hover:bg-white/5 transition-colors relative group">
+                    <span class="material-symbols-outlined text-[18px]">shopping_cart</span>
+                    <span class="hidden md:inline">Keranjang</span>
+                    
+                    <?php if ($totalCartItems > 0) : ?>
+                        <span class="absolute -top-2 -right-2 bg-red-500 text-white font-bold text-[10px] w-5 h-5 flex items-center justify-center rounded-full shadow-md shadow-red-500/20 animate-pulse">
+                            <?= $totalCartItems; ?>
                         </span>
                     <?php endif; ?>
                 </a>
 
-                <?php if (session()->get('isLoggedIn')): ?>
-                    <span class="text-light small">
-                        <i class="bi bi-person-circle"></i> <?= esc(session()->get('nama_lengkap')); ?>
-                    </span>
-                    <a href="/tambah-produk" class="btn btn-success btn-sm fw-bold px-3 rounded-pill">+ Tambah Produk</a>
-                    <a href="/logout" class="btn btn-outline-danger btn-sm rounded-pill">Logout</a>
-                <?php else: ?>
-                    <a href="/login" class="btn btn-outline-info btn-sm rounded-pill">Login</a>
+                <?php if (session()->get('isLoggedIn')) : ?>
+                    <div class="flex items-center gap-1.5 text-sm text-gray-300 px-1">
+                        <span class="material-symbols-outlined text-[20px]">account_circle</span>
+                        <span class="hidden md:inline text-gray-200"><?= esc(session()->get('nama_lengkap') ?? 'alberto'); ?></span>
+                    </div>
+                    <a href="<?= base_url('logout'); ?>" class="text-sm text-red-400 border border-red-500/20 px-4 py-2 rounded-lg hover:bg-red-500/10 transition-colors ml-1">
+                        Logout
+                    </a>
+                <?php else : ?>
+                    <a href="<?= base_url('login'); ?>" class="text-sm text-gray-300 border border-white/10 px-4 py-2 rounded-lg hover:bg-white/5 transition-colors">
+                        Login
+                    </a>
                 <?php endif; ?>
             </div>
         </div>
-    </nav>
+    </header>
 
-    <div class="container">
-        <?php if (session()->getFlashdata('pesan')): ?>
-            <div class="alert alert-success alert-dismissible fade show fw-bold shadow-sm" role="alert">
-                🚀 <?= session()->getFlashdata('pesan'); ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        <?php endif; ?>
-
-        <?php if (session()->getFlashdata('error')): ?>
-            <div class="alert alert-danger alert-dismissible fade show fw-bold shadow-sm" role="alert">
-                ❌ <?= session()->getFlashdata('error'); ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        <?php endif; ?>
-
-        <?php if (session()->getFlashdata('errors')): ?>
-            <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
-                <strong>❌ Terdapat kesalahan:</strong>
-                <ul class="mb-0 mt-1">
-                    <?php foreach (session()->getFlashdata('errors') as $err): ?>
-                        <li><?= esc($err); ?></li>
-                    <?php endforeach; ?>
-                </ul>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        <?php endif; ?>
-
+    <main class="flex-grow w-full max-w-[1440px] mx-auto px-4 md:px-8 py-12">
         <?= $this->renderSection('content'); ?>
-    </div>
+    </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <script>
-        window.setTimeout(function() {
-            const activeAlerts = document.querySelectorAll('.alert');
-            activeAlerts.forEach(function(alert) {
-                const bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
-            });
-        }, 4000);
-    </script>
+    <footer class="bg-[#1A2232] border-t border-white/5 mt-auto">
+        <div class="max-w-[1440px] mx-auto px-4 md:px-8 py-10 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <span class="text-base font-bold text-[#F3F4F6] tracking-wide font-serif">BREE-COMMERCE</span>
+                <p class="text-xs text-gray-500 mt-1">© 2026 Bree-Commerce. All rights reserved.</p>
+            </div>
+            <div class="flex gap-6 text-xs text-gray-400">
+                <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+                <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
+                <a href="#" class="hover:text-white transition-colors">Help Center</a>
+                <a href="#" class="hover:text-white transition-colors">Contact Us</a>
+            </div>
+        </div>
+    </footer>
 
 </body>
-
 </html>

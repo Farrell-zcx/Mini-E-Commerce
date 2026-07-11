@@ -6,7 +6,7 @@ use App\Models\UserModel;
 use CodeIgniter\HTTP\RedirectResponse;
 
 /**
- * Auth — Menangani register, login, dan logout user.
+ * Auth: register, login, dan logout user.
  */
 class Auth extends BaseController
 {
