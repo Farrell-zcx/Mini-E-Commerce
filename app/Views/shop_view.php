@@ -1,62 +1,131 @@
+<?php
+/**
+ * @var CodeIgniter\View\View $this
+ * @var array<int, array{id: int, nama_produk: string, deskripsi: string, harga: float, stok: int, foto: string, nama_kategori: string}> $daftar_produk
+ */
+
+// IDE helper — fungsi-fungsi CI4 yang dipakai di view ini
+if (false) {
+    /** @var \CodeIgniter\Session\Session $session */
+    function session(): \CodeIgniter\Session\Session {}
+    function esc(string $data, string $context = 'html'): string {}
+    function csrf_field(): string {}
+    function base_url(string $uri = ''): string {}
+    function old(string $key, $default = null) {}
+}
+?>
 <?= $this->extend('layouts/main'); ?>
 
 <?= $this->section('content'); ?>
 
-<?php
-/**
- * @var array $daftar_produk Daftar produk dari database
- */
-?>
+<!-- Notifikasi Alert Sukses Dinamis (Flashdata) -->
+<?php if (session()->getFlashdata('pesan')) : ?>
+    <div class="alert mb-8 p-4 rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 shadow-md">
+        <span class="font-medium">🚀 <?= session()->getFlashdata('pesan'); ?></span>
+    </div>
+<?php endif; ?>
 
-<h3 class="fw-bold mb-4">Katalog Produk Terbaru</h3>
+<?php if (session()->getFlashdata('error')) : ?>
+    <div class="alert mb-8 p-4 rounded-lg bg-red-500/15 text-red-400 border border-red-500/20 shadow-md">
+        <span class="font-medium">❌ <?= session()->getFlashdata('error'); ?></span>
+    </div>
+<?php endif; ?>
 
-<div class="row">
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-[#F3F4F6] tracking-tight font-serif">Produk Tersedia</h1>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     <?php foreach ($daftar_produk as $p): ?>
-        <div class="col-md-4 mb-4">
-            <div class="card h-100 shadow-sm border-0">
+        <article class="bg-[#242E42]/40 backdrop-blur-md rounded-xl overflow-hidden border border-white/5 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-white/10 group flex flex-col h-full">
+            
+            <!-- Foto Produk -->
+            <div class="relative h-64 overflow-hidden bg-[#1A2232] flex items-center justify-center">
                 <?php if ($p['foto'] && $p['foto'] !== 'default.png'): ?>
-                    <img src="/uploads/<?= $p['foto']; ?>" class="card-img-top rounded-top" alt="<?= esc($p['nama_produk']); ?>" style="height: 200px; object-fit: cover;">
+                    <img src="/uploads/<?= $p['foto']; ?>" alt="<?= esc($p['nama_produk']); ?>" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
                 <?php else: ?>
-                    <div class="bg-secondary text-white text-center py-5 rounded-top fw-bold" style="background: linear-gradient(45deg, #343a40, #6c757d); height: 200px; display: flex; align-items: center; justify-content: center;">
+                    <div class="w-full h-full bg-gradient-to-br from-slate-700 to-slate-800 text-slate-400 text-center flex items-center justify-center font-bold px-4 text-sm">
                         [ Gambar <?= esc($p['nama_produk']); ?> ]
                     </div>
                 <?php endif; ?>
+            </div>
 
-                <div class="card-body d-flex flex-column">
-                    <span class="badge bg-info text-dark mb-2 align-self-start fw-semibold">
+            <!-- Detail Spesifikasi Barang -->
+            <div class="p-6 flex flex-col flex-grow">
+                <!-- Badge Kategori Produk -->
+                <div class="mb-3">
+                    <span class="inline-block bg-[#A3E635]/10 text-[#A3E635] text-xs px-2.5 py-1 rounded-full border border-[#A3E635]/20 font-semibold tracking-wide">
                         <?= esc($p['nama_kategori']); ?>
                     </span>
-
-                    <h5 class="card-title fw-bold text-dark mb-2"><?= esc($p['nama_produk']); ?></h5>
-                    <p class="card-text text-muted small flex-grow-1"><?= esc($p['deskripsi']); ?></p>
-
-                    <div class="d-flex justify-content-between align-items-center mt-3">
-                        <span class="text-danger fw-bold fs-5">Rp <?= number_format($p['harga'], 0, ',', '.'); ?></span>
-                        <span class="text-muted small">Stok: <strong><?= esc($p['stok']); ?></strong></span>
-                    </div>
                 </div>
 
-                <div class="card-footer bg-white border-0 pb-3 d-flex flex-column gap-2">
-                    <form action="/keranjang/add/<?= $p['id']; ?>" method="post" class="d-inline">
+                <!-- Judul Barang -->
+                <h2 class="text-xl font-bold text-[#F3F4F6] mb-2 tracking-tight group-hover:text-[#ccff80] transition-colors">
+                    <?= esc($p['nama_produk']); ?>
+                </h2>
+                
+                <!-- Deskripsi Pendek -->
+                <p class="text-sm text-gray-400 mb-6 flex-grow line-clamp-3 leading-relaxed">
+                    <?= esc($p['deskripsi']); ?>
+                </p>
+
+                <!-- Info Harga dan Informasi Sisa Stok -->
+                <div class="flex justify-between items-center mb-6">
+                    <span class="text-xl font-bold text-[#A3E635]">
+                        Rp <?= number_format($p['harga'], 0, ',', '.'); ?>
+                    </span>
+                    <span class="text-xs text-gray-500">
+                        Stok: <span class="text-gray-300 font-semibold"><?= esc($p['stok']); ?></span>
+                    </span>
+                </div>
+
+                <!-- Kendali Tombol Modifikasi & Keranjang Aman (POST) -->
+                <div class="flex flex-col gap-2 mt-auto">
+                    <!-- Form POST Tambah ke Keranjang (Proteksi CSRF) -->
+                    <form action="/keranjang/add/<?= $p['id']; ?>" method="post" class="w-full m-0 p-0">
                         <?= csrf_field(); ?>
-                        <button type="submit" class="btn btn-primary btn-sm fw-bold rounded-pill w-100">
-                            <i class="bi bi-cart-plus-fill"></i> Tambah ke Keranjang
+                        <button type="submit" class="w-full bg-[#A3E635] text-gray-950 hover:bg-[#84cc16] transition-colors text-sm font-bold py-3 rounded-lg flex justify-center items-center gap-2 shadow-md shadow-[#A3E635]/10">
+                            <span class="material-symbols-outlined text-[18px]">shopping_cart</span>
+                            Tambah ke Keranjang
                         </button>
                     </form>
 
+                    <!-- Tombol Istimewa Akses Admin (Sudah Disamakan Ukurannya Sempurna) -->
                     <?php if (session()->get('isLoggedIn')): ?>
-                        <div class="d-flex gap-2">
-                            <a href="/edit-produk/<?= $p['id']; ?>" class="btn btn-warning btn-sm w-50 fw-bold rounded-pill text-dark">Edit</a>
-                            <form action="/produk/delete/<?= $p['id']; ?>" method="post" class="w-50" onsubmit="return confirm('Yakin mau hapus produk ini?')">
+                        <div class="grid grid-cols-2 gap-2 mt-1">
+                            
+                            <!-- Tombol Edit -->
+                            <a href="/edit-produk/<?= $p['id']; ?>" class="w-full bg-white/5 text-gray-300 hover:bg-white/10 border border-white/5 transition-colors text-xs py-2.5 rounded-lg font-semibold flex items-center justify-center text-center">
+                                Edit
+                            </a>
+                            
+                            <!-- Form Tombol Hapus (Symmetrical Stretch) -->
+                            <form action="/produk/delete/<?= $p['id']; ?>" method="post" class="w-full flex m-0 p-0">
                                 <?= csrf_field(); ?>
-                                <button type="submit" class="btn btn-danger btn-sm w-100 fw-bold rounded-pill">Hapus</button>
+                                <button type="submit" class="w-full bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/10 transition-colors text-xs py-2.5 rounded-lg font-semibold flex items-center justify-center" onclick="return confirm('Yakin mau hapus produk ini?')">
+                                    Hapus
+                                </button>
                             </form>
+                            
                         </div>
                     <?php endif; ?>
                 </div>
             </div>
-        </div>
+
+        </article>
     <?php endforeach; ?>
 </div>
+
+<!-- Fade out Alert Otomatis 3 Detik hilang -->
+<script>
+    window.setTimeout(function() {
+        const activeAlerts = document.querySelectorAll('.alert');
+        activeAlerts.forEach(function(alert) {
+            alert.style.transition = "opacity 0.5s ease";
+            alert.style.opacity = "0";
+            setTimeout(() => alert.remove(), 500);
+        });
+    }, 3000);
+</script>
 
 <?= $this->endSection(); ?>

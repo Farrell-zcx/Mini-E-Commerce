@@ -7,11 +7,20 @@ use CodeIgniter\Router\RouteCollection;
 // --- Halaman Publik ---
 $routes->get('/', 'ProdukController::index');
 
-// --- Auth Routes ---
-$routes->get('/register', 'Auth::register');
+// ==========================================
+// RUTE AUTENTIKASI (REGISTER, LOGIN, LOGOUT)
+// ==========================================
+
+// Jalur Halaman & Proses Registrasi Akun Baru
+$routes->get('/auth/register', 'Auth::register');
 $routes->post('/auth/simpanRegister', 'Auth::simpanRegister');
+
+// Jalur Halaman & Proses Masuk (Login)
 $routes->get('/login', 'Auth::login');
+$routes->get('/auth/login', 'Auth::login'); // Cadangan jika diakses via prefix auth
 $routes->post('/auth/prosesLogin', 'Auth::prosesLogin');
+
+// Jalur Keluar Sistem (Logout)
 $routes->get('/logout', 'Auth::logout');
 
 // --- Produk CRUD (Dilindungi Auth Filter) ---
@@ -29,3 +38,5 @@ $routes->get('/keranjang', 'KeranjangController::index');
 $routes->post('/keranjang/add/(:num)', 'KeranjangController::addToCart/$1');
 $routes->post('/keranjang/hapus/(:num)', 'KeranjangController::hapus/$1');
 $routes->post('/keranjang/checkout', 'KeranjangController::checkout');
+$routes->get('/produk/tambah', 'ProdukController::tambah');
+$routes->get('/keranjang', 'KeranjangController::index');
